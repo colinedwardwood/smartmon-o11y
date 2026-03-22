@@ -1,0 +1,37 @@
+---
+# Smartmontools Installation
+# Installs and enables SMART monitoring for disk health
+#
+# Usage:
+#   ansible-playbook playbooks/smartmon.yml -K
+
+- name: Install and configure smartmontools
+  hosts: all:!raspberry_pis
+
+  tasks:
+    - name: Install smartmontools
+      ansible.builtin.apt:
+        name: smartmontools
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Enable smartd service
+      ansible.builtin.systemd:
+        name: smartd
+        state: started
+        enabled: true
+
+    - name: Enable SMART monitoring on all drives
+      ansible.builtin.lineinfile:
+        path: /etc/smartd.conf
+        regexp: '^DEVICESCAN'
+        line: "DEVICESCAN -a -o on -S on -n standby,q -s (S/../.././02|L/../../6/03) -W 4,45,55 -m root"
+        state: present
+      notify: Restart smartd
+
+  handlers:
+    - name: Restart smartd
+      ansible.builtin.systemd:
+        name: smartd
+        state: restarted

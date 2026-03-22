@@ -1,0 +1,12 @@
+---
+smartctl_exporter_version: "0.14.0"
+smartctl_exporter_flags: "--web.listen-address=:9633 --smartctl.device-exclude=^/dev/(loop|dm|sr)"
+smartctl_exporter_user: smartctl-exporter
+smartctl_exporter_group: smartctl-exporter
+
+# SHA256 checksums for each arch — update when bumping smartctl_exporter_version
+# Source: https://github.com/prometheus-community/smartctl_exporter/releases/download/v{{ smartctl_exporter_version }}/sha256sums.txt
+smartctl_exporter_checksums:
+  amd64: "sha256:875983cd27affc5a682401930e5a8eea3f06c325fe6d6a7228c5547d882685b3"
+  arm64: "sha256:27353b3adca7f54dd486417412041a17260709c724ea63f5138df2612ecf4299"
+  armv7: "sha256:1eb58ca3e972c58914fc3a3ea92bf050055dbd102c1eeaa2ef35ff6d4722c321"

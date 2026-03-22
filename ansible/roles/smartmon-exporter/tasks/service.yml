@@ -1,0 +1,16 @@
+---
+- name: Deploy smartctl-exporter systemd service unit
+  ansible.builtin.template:
+    src: smartctl-exporter.service.j2
+    dest: /etc/systemd/system/smartctl-exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart smartctl-exporter
+
+- name: Enable and start smartctl-exporter service
+  ansible.builtin.systemd:
+    name: smartctl-exporter.service
+    enabled: true
+    state: started
+    daemon_reload: true

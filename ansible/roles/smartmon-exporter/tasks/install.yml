@@ -1,0 +1,52 @@
+---
+- name: Create smartctl-exporter system group
+  ansible.builtin.group:
+    name: "{{ smartctl_exporter_group }}"
+    system: true
+
+- name: Create smartctl-exporter system user
+  ansible.builtin.user:
+    name: "{{ smartctl_exporter_user }}"
+    group: "{{ smartctl_exporter_group }}"
+    groups: disk
+    append: true
+    system: true
+    home: /var/lib/smartctl-exporter
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Set architecture fact
+  ansible.builtin.set_fact:
+    smartctl_exporter_arch: >-
+      {{ {'x86_64': 'amd64', 'aarch64': 'arm64', 'armv7l': 'armv7'}[ansible_architecture] | default('amd64') }}
+
+- name: Download smartctl_exporter archive
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus-community/smartctl_exporter/releases/download/v{{ smartctl_exporter_version }}/smartctl_exporter-{{ smartctl_exporter_version }}.linux-{{ smartctl_exporter_arch }}.tar.gz"
+    dest: "/tmp/smartctl_exporter-{{ smartctl_exporter_version }}.linux-{{ smartctl_exporter_arch }}.tar.gz"
+    checksum: "{{ smartctl_exporter_checksums[smartctl_exporter_arch] }}"
+    mode: "0644"
+
+- name: Extract smartctl_exporter binary
+  ansible.builtin.unarchive:
+    src: "/tmp/smartctl_exporter-{{ smartctl_exporter_version }}.linux-{{ smartctl_exporter_arch }}.tar.gz"
+    dest: /tmp
+    remote_src: true
+    creates: "/tmp/smartctl_exporter-{{ smartctl_exporter_version }}.linux-{{ smartctl_exporter_arch }}/smartctl_exporter"
+
+- name: Install smartctl_exporter binary
+  ansible.builtin.copy:
+    src: "/tmp/smartctl_exporter-{{ smartctl_exporter_version }}.linux-{{ smartctl_exporter_arch }}/smartctl_exporter"
+    dest: /usr/local/bin/smartctl_exporter
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  notify: Restart smartctl-exporter
+
+- name: Install smartmontools
+  ansible.builtin.apt:
+    name: smartmontools
+    state: present
+    update_cache: true
+    cache_valid_time: 3600

@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Prometheus smartctl exporter
+Documentation=https://github.com/prometheus-community/smartctl_exporter
+After=network.target smartd.service
+
+[Service]
+User={{ smartctl_exporter_user }}
+Group={{ smartctl_exporter_group }}
+ExecStart=/usr/local/bin/smartctl_exporter {{ smartctl_exporter_flags }}
+Restart=on-failure
+RestartSec=5s
+
+# Capabilities: smartctl needs raw disk access; disk group + CAP_SYS_RAWIO
+# replaces running as root.
+AmbientCapabilities=CAP_SYS_RAWIO
+CapabilityBoundingSet=CAP_SYS_RAWIO
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+RemoveIPC=true
+
+[Install]
+WantedBy=multi-user.target

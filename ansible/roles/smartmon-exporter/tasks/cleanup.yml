@@ -1,0 +1,37 @@
+---
+- name: Stop and disable old smartmon-exporter timer
+  ansible.builtin.systemd:
+    name: smartmon-exporter.timer
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  failed_when: false
+
+- name: Stop and disable old smartmon-exporter service
+  ansible.builtin.systemd:
+    name: smartmon-exporter.service
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Remove old smartmon-exporter systemd units
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/smartmon-exporter.service
+    - /etc/systemd/system/smartmon-exporter.timer
+  notify: Reload systemd
+
+- name: Remove old smartmon scripts
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/local/bin/smartmon.sh
+    - /usr/local/bin/smartmon-collect
+
+- name: Remove old smartmon textfile metrics
+  ansible.builtin.file:
+    path: /var/lib/node_exporter/textfile_collector/smartmon.prom
+    state: absent

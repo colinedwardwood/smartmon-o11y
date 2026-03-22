@@ -1,0 +1,377 @@
+{
+  "name": "Drive Health",
+  "interval": 60,
+  "rules": [
+
+    {
+      "uid": "smartmon-health-failed",
+      "title": "SMART \u2014 Health Check Failed",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_smart_status",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [1], "type": "lt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "critical", "service": "smartmon"},
+      "annotations": {
+        "summary": "SMART health check FAILED on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "The overall SMART health assessment has returned FAILED on {{ $labels.instance }} disk {{ $labels.device }}.\n\nThis means the drive crossed a threshold that smartctl considers a failure indicator. Data loss is possible.\n\nInvestigate:\n  sudo smartctl -H {{ $labels.device }}\n  sudo smartctl -a {{ $labels.device }}\n\nBack up data immediately and plan for drive replacement."
+      }
+    },
+
+    {
+      "uid": "smartmon-pending-sectors",
+      "title": "SMART \u2014 Current Pending Sectors Detected",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [0], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "critical", "service": "smartmon"},
+      "annotations": {
+        "summary": "{{ $values.A }} pending sectors on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "SMART attribute 197 (Current Pending Sectors) is non-zero on {{ $labels.instance }} disk {{ $labels.device }}.\n\nPending sectors are unstable sectors the drive has flagged for reallocation on the next write. Reads from these sectors may fail or return corrupt data RIGHT NOW.\n\nThis is a strong precursor to imminent drive failure.\n\nInvestigate:\n  sudo smartctl -a {{ $labels.device }}\n  sudo smartctl -t short {{ $labels.device }}\n\nBack up data immediately."
+      }
+    },
+
+    {
+      "uid": "smartmon-uncorrectable-sectors",
+      "title": "SMART \u2014 Uncorrectable Sectors Detected",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_attribute{attribute_id=\"198\", attribute_value_type=\"raw\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [0], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "critical", "service": "smartmon"},
+      "annotations": {
+        "summary": "{{ $values.A }} uncorrectable sectors on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "SMART attribute 198 (Offline Uncorrectable) is non-zero on {{ $labels.instance }} disk {{ $labels.device }}.\n\nThese are sectors that could not be corrected during an offline scan. Data in these sectors has already been lost.\n\nInvestigate:\n  sudo smartctl -a {{ $labels.device }}\n  sudo smartctl -t long {{ $labels.device }}\n\nReplace drive. Back up all data immediately."
+      }
+    },
+
+    {
+      "uid": "smartmon-exporter-stale",
+      "title": "SMART \u2014 Exporter Down (No Data)",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 1200, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "time() - timestamp(smartctl_device) > 900",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [0], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "Alerting",
+      "execErrState": "Error",
+      "for": "15m",
+      "labels": {"severity": "critical", "service": "smartmon"},
+      "annotations": {
+        "summary": "smartctl_exporter has not been scraped in >15 minutes on {{ $labels.instance }}",
+        "description": "No smartctl_exporter data has been received from {{ $labels.instance }} for more than 15 minutes. Drive health is unknown.\n\nInvestigate:\n  systemctl status smartctl-exporter\n  journalctl -u smartctl-exporter -n 50\n  curl http://localhost:9633/metrics | head -20"
+      }
+    },
+
+    {
+      "uid": "smartmon-reallocated-sectors",
+      "title": "SMART \u2014 Reallocated Sectors Detected",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_attribute{attribute_id=\"5\", attribute_value_type=\"raw\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [0], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "15m",
+      "labels": {"severity": "warning", "service": "smartmon"},
+      "annotations": {
+        "summary": "{{ $values.A }} reallocated sectors on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "SMART attribute 5 (Reallocated Sectors Count) is non-zero on {{ $labels.instance }} disk {{ $labels.device }}.\n\nThe drive has remapped bad sectors to spare area. This is a sign of physical media degradation. A small number is common in older drives, but any new increase is significant.\n\nInvestigate:\n  sudo smartctl -a {{ $labels.device }}\n\nMonitor for increases. Consider scheduling a long self-test:\n  sudo smartctl -t long {{ $labels.device }}"
+      }
+    },
+
+    {
+      "uid": "smartmon-temperature-critical",
+      "title": "SMART \u2014 Drive Temperature Critical",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_temperature{temperature_type=\"current\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [55], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "critical", "service": "smartmon"},
+      "annotations": {
+        "summary": "Drive temperature {{ $values.A }}\u00b0C on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "Drive temperature on {{ $labels.instance }} disk {{ $labels.device }} has exceeded 55\u00b0C for 5 minutes (current: {{ $values.A }}\u00b0C).\n\nAt sustained high temperatures, drive lifespan is significantly reduced and failure risk increases.\n\nInvestigate:\n  Check chassis airflow and fan status\n  Verify drive is not obstructed\n  sudo smartctl -a {{ $labels.device }} | grep -i temp"
+      }
+    },
+
+    {
+      "uid": "smartmon-temperature-high",
+      "title": "SMART \u2014 Drive Temperature High",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 1800, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_temperature{temperature_type=\"current\"}",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [45], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "30m",
+      "labels": {"severity": "warning", "service": "smartmon"},
+      "annotations": {
+        "summary": "Drive temperature {{ $values.A }}\u00b0C on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "Drive temperature on {{ $labels.instance }} disk {{ $labels.device }} has been above 45\u00b0C for 30 minutes (current: {{ $values.A }}\u00b0C).\n\nInvestigate cooling before temperature rises further."
+      }
+    },
+
+    {
+      "uid": "smartmon-command-timeout-rising",
+      "title": "SMART \u2014 Command Timeout Count Increasing",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 3600, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "increase(smartctl_device_attribute{attribute_id=\"188\", attribute_value_type=\"raw\"}[1h])",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [0], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "5m",
+      "labels": {"severity": "warning", "service": "smartmon"},
+      "annotations": {
+        "summary": "Command timeouts increasing on {{ $labels.instance }} disk {{ $labels.device }}",
+        "description": "SMART attribute 188 (Command Timeout) increased in the last hour on {{ $labels.instance }} disk {{ $labels.device }}.\n\nCommand timeouts can indicate a failing drive controller, a bad cable/connection, or an overwhelmed drive.\n\nInvestigate:\n  sudo smartctl -a {{ $labels.device }}\n  Check cable connections and SATA/PCIe slot\n  Review dmesg for disk errors: dmesg | grep -i {{ $labels.device }}"
+      }
+    },
+
+    {
+      "uid": "smartmon-drive-age-warning",
+      "title": "SMART \u2014 Drive Approaching End of Rated Life",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 300, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "smartctl_device_power_on_seconds / 3600",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [43800], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "1h",
+      "labels": {"severity": "warning", "service": "smartmon"},
+      "annotations": {
+        "summary": "Drive {{ $labels.instance }}/{{ $labels.device }} has {{ $values.A | humanize }}h power-on hours (>5 years)",
+        "description": "Drive {{ $labels.device }} on {{ $labels.instance }} has accumulated more than 43,800 power-on hours (5 years of continuous operation).\n\nConsumer drives have statistically higher failure rates after this point (Backblaze data). This is a planning alert, not an imminent failure signal.\n\nRecommendation: Source a replacement drive and plan a scheduled swap. Ensure backups are current."
+      }
+    },
+
+    {
+      "uid": "smartmon-write-anomaly",
+      "title": "SMART \u2014 Sustained Anomalous Write Rate",
+      "condition": "Threshold",
+      "data": [
+        {
+          "refId": "A",
+          "relativeTimeRange": {"from": 1200, "to": 0},
+          "datasourceUid": "grafanacloud-prom",
+          "model": {
+            "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
+            "expr": "rate(node_disk_written_bytes_total{device!~\"loop.*|dm-.*\"}[5m])",
+            "instant": true,
+            "refId": "A"
+          }
+        },
+        {
+          "refId": "Threshold",
+          "datasourceUid": "-100",
+          "model": {
+            "conditions": [{"evaluator": {"params": [209715200], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A"]}, "reducer": {"params": [], "type": "last"}, "type": "query"}],
+            "datasource": {"type": "__expr__", "uid": "-100"},
+            "refId": "Threshold",
+            "type": "threshold"
+          }
+        }
+      ],
+      "noDataState": "NoData",
+      "execErrState": "Error",
+      "for": "10m",
+      "labels": {"severity": "warning", "service": "smartmon"},
+      "annotations": {
+        "summary": "Anomalous write rate on {{ $labels.instance }} device {{ $labels.device }}",
+        "description": "Device {{ $labels.device }} on {{ $labels.instance }} has been writing at >200MB/s sustained for 10 minutes.\n\nFor a homelab this is unusual and could indicate ransomware encryption activity, unexpected backup jobs, or hardware issues.\n\nInvestigate:\n  iotop -ao\n  ps aux --sort=-%cpu | head -20\n  lsof | grep {{ $labels.device }}\n\nNote: Tune the 200MB/s threshold if you have legitimate high-throughput workloads."
+      }
+    }
+
+  ]
+}

@@ -1,0 +1,16 @@
+---
+# smartctl_exporter
+# Deploys the prometheus-community smartctl_exporter as a persistent systemd service.
+# Exposes SMART metrics (including disk size, health, temperature) on :9633.
+#
+# Prerequisites:
+#   - smartmon.yml has been run (smartd must be active)
+#
+# Usage:
+#   ansible-playbook playbooks/smartmon-exporter.yml
+
+- name: Deploy smartctl_exporter
+  hosts: all:!raspberry_pis
+  become: true
+  roles:
+    - smartmon-exporter
