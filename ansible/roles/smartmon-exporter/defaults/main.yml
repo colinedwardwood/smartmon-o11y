@@ -1,6 +1,11 @@
 ---
 smartctl_exporter_version: "0.14.0"
-smartctl_exporter_flags: "--web.listen-address=:9633 --smartctl.device-exclude=^/dev/(loop|dm|sr)"
+# Scan /dev/disk/by-id so Longhorn iSCSI volumes (scsi-1IET_*) and megaraid
+# passthrough aliases are excluded by name instead of guessing /dev/sdX paths.
+smartctl_exporter_flags: >-
+  --web.listen-address=:9633
+  --smartctl.scan-device-type=by-id
+  --smartctl.device-exclude=(IET|megaraid|part|dm-|nbd|longhorn|loop|rbd|zram)
 smartctl_exporter_user: smartctl-exporter
 smartctl_exporter_group: smartctl-exporter
 

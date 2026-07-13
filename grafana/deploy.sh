@@ -1,7 +1,7 @@
 #!/bin/bash
 # deploy.sh — Push Drive Health dashboards and alerts to Grafana Cloud
 #
-# Reads the API key from ~/Code/api-tokens/grafana-api.key by default.
+# Reads the API key from ~/.tokens/grafana-cew/grafana-api.key by default.
 # Override with: GRAFANA_API_KEY=xxx ./deploy.sh
 
 set -euo pipefail
@@ -9,7 +9,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 GRAFANA_URL="${GRAFANA_URL:-https://cew.grafana.net}"
-GRAFANA_API_KEY="${GRAFANA_API_KEY:-$(cat "$HOME/Code/api-tokens/grafana-api.key" 2>/dev/null || echo '')}"
+GRAFANA_API_KEY="${GRAFANA_API_KEY:-$(cat "$HOME/.tokens/grafana-cew/grafana-api.key" 2>/dev/null || echo '')}"
 PROM_UID="grafanacloud-prom"
 
 FOLDER_TITLE="Drive Health"
@@ -17,7 +17,7 @@ FOLDER_UID="drive-health"
 ALERT_GROUP="Drive%20Health"
 
 if [[ -z "$GRAFANA_API_KEY" ]]; then
-  echo "ERROR: GRAFANA_API_KEY is not set and ~/Code/api-tokens/grafana-api.key not found." >&2
+  echo "ERROR: GRAFANA_API_KEY is not set and ~/.tokens/grafana-cew/grafana-api.key not found." >&2
   exit 1
 fi
 

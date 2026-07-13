@@ -1,0 +1,3 @@
+ansible/.vault_password
+ansible/.ansible_cache/
+ansible/inventory/

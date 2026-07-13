@@ -117,7 +117,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(smartctl_device_smart_status{device!~\".+megaraid.+\"} < 1) OR vector(0)",
+          "expr": "count((smartctl_device_smart_status{device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"}) < 1) OR vector(0)",
           "instant": true,
           "legendFormat": "__auto"
         }
@@ -182,7 +182,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"} > 0) OR vector(0)",
+          "expr": "count((smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"}) > 0) OR vector(0)",
           "instant": true,
           "legendFormat": "__auto"
         }
@@ -247,7 +247,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"} > 0) OR vector(0)",
+          "expr": "count((smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"}) > 0) OR vector(0)",
           "instant": true,
           "legendFormat": "__auto"
         }
@@ -312,7 +312,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_smart_status{device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_smart_status{device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "instant": true,
           "format": "table"
         },
@@ -322,7 +322,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_temperature{temperature_type=\"current\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_temperature{temperature_type=\"current\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "instant": true,
           "format": "table"
         },
@@ -332,7 +332,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "instant": true,
           "format": "table"
         },
@@ -342,7 +342,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "instant": true,
           "format": "table"
         },
@@ -352,7 +352,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Offline_Uncorrectable\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Offline_Uncorrectable\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "instant": true,
           "format": "table"
         },
@@ -362,7 +362,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_power_on_seconds{device!~\".+megaraid.+\"}) / 3600",
+          "expr": "max by (instance, device) (smartctl_device_power_on_seconds{device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"}) / 3600",
           "instant": true,
           "format": "table"
         }
@@ -676,7 +676,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_temperature{temperature_type=\"current\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_temperature{temperature_type=\"current\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}} / {{device}}"
         }
       ],
@@ -745,7 +745,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reallocated_Sector_Ct\",  attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}}/{{device}} Reallocated (5)"
         },
         {
@@ -754,7 +754,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reported_Uncorrect\",       attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Reported_Uncorrect\",       attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}}/{{device}} Reported Uncorrect (187)"
         },
         {
@@ -763,7 +763,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Command_Timeout\",          attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Command_Timeout\",          attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}}/{{device}} Command Timeout (188)"
         },
         {
@@ -772,7 +772,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\",   attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\",   attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}}/{{device}} Pending Sectors (197)"
         },
         {
@@ -781,7 +781,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Offline_Uncorrectable\",    attribute_value_type=\"raw\",device!~\".+megaraid.+\"})",
+          "expr": "max by (instance, device) (smartctl_device_attribute{attribute_name=\"Offline_Uncorrectable\",    attribute_value_type=\"raw\",device!~\".+megaraid.+\"} unless on(instance, device) smartctl_device{scsi_product=\"VIRTUAL-DISK\"})",
           "legendFormat": "{{instance}}/{{device}} Uncorrectable (198)"
         }
       ],

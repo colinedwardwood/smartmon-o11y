@@ -1,4 +1,10 @@
 ---
+- name: Remove legacy smartctl-exporter systemd drop-in overrides
+  ansible.builtin.file:
+    path: /etc/systemd/system/smartctl-exporter.service.d
+    state: absent
+  notify: Reload systemd
+
 - name: Deploy smartctl-exporter systemd service unit
   ansible.builtin.template:
     src: smartctl-exporter.service.j2

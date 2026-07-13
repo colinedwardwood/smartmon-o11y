@@ -14,7 +14,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_smart_status",
+            "expr": "smartctl_device_smart_status{scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -51,7 +51,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\"}",
+            "expr": "smartctl_device_attribute{attribute_name=\"Current_Pending_Sector\", attribute_value_type=\"raw\", scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -88,7 +88,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_attribute{attribute_id=\"198\", attribute_value_type=\"raw\"}",
+            "expr": "smartctl_device_attribute{attribute_id=\"198\", attribute_value_type=\"raw\", scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -125,7 +125,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "time() - timestamp(smartctl_device) > 900",
+            "expr": "time() - timestamp(smartctl_device{scsi_product!=\"VIRTUAL-DISK\"}) > 900",
             "instant": true,
             "refId": "A"
           }
@@ -162,7 +162,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_attribute{attribute_id=\"5\", attribute_value_type=\"raw\"}",
+            "expr": "smartctl_device_attribute{attribute_id=\"5\", attribute_value_type=\"raw\", scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -199,7 +199,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_temperature{temperature_type=\"current\"}",
+            "expr": "smartctl_device_temperature{temperature_type=\"current\", scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -236,7 +236,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_temperature{temperature_type=\"current\"}",
+            "expr": "smartctl_device_temperature{temperature_type=\"current\", scsi_product!=\"VIRTUAL-DISK\"}",
             "instant": true,
             "refId": "A"
           }
@@ -273,7 +273,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "increase(smartctl_device_attribute{attribute_id=\"188\", attribute_value_type=\"raw\"}[1h])",
+            "expr": "increase(smartctl_device_attribute{attribute_id=\"188\", attribute_value_type=\"raw\", scsi_product!=\"VIRTUAL-DISK\"}[1h])",
             "instant": true,
             "refId": "A"
           }
@@ -310,7 +310,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "smartctl_device_power_on_seconds / 3600",
+            "expr": "smartctl_device_power_on_seconds{scsi_product!=\"VIRTUAL-DISK\"} / 3600",
             "instant": true,
             "refId": "A"
           }
@@ -347,7 +347,7 @@
           "datasourceUid": "grafanacloud-prom",
           "model": {
             "datasource": {"type": "prometheus", "uid": "grafanacloud-prom"},
-            "expr": "rate(node_disk_written_bytes_total{device!~\"loop.*|dm-.*\"}[5m])",
+            "expr": "rate(node_disk_written_bytes_total{device!~\"loop.*|dm-.*|nbd.*|longhorn.*\"}[5m])",
             "instant": true,
             "refId": "A"
           }

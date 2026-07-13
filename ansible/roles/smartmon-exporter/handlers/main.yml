@@ -8,3 +8,8 @@
 - name: Reload systemd
   ansible.builtin.systemd:
     daemon_reload: true
+
+- name: Restart smartd
+  ansible.builtin.systemd:
+    name: smartd
+    state: restarted
